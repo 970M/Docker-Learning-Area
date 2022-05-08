@@ -95,4 +95,55 @@ Arrêter et supprimer un conteneur en une seule commande :
 
 2 - Actualisez votre navigateur sur [http://localhost:3000] et vous devriez voir votre texte d'aide mis à jour !
 
+#### Partie 4 : Partager l'application
 
+Créer un dépot sur [https://hub.docker.com/repository/docker/970m/getting-started]
+
+##### Pousser l'image
+
+1 - Dans la ligne de commande, essayez d'exécuter la commande push que vous voyez sur Docker Hub. Notez que votre commande utilisera votre espace de noms, pas "docker".
+
+    docker push docker/my-second-image
+    
+    The push refers to repository [docker.io/docker/my-second-image]
+    An image does not exist locally with the tag: docker/my-second-image
+
+    docker image ls
+
+Pourquoi a-t-il échoué ? La commande push recherchait une image nommée docker/my-second-image, mais n'en a pas trouvé. Si vous exécutez docker image ls, vous n'en verrez pas non plus.
+
+Pour résoudre ce problème, nous devons "tagger" notre image existante que nous avons construite pour lui donner un autre nom.
+
+2 - Connectez-vous au Docker Hub à l'aide de la commande :
+
+    docker login -u YOUR-USER-NAME.
+
+Utilisez la docker tag commande pour donner my-second-image d'un nouveau nom à l'image. Assurez-vous d'échanger YOUR-USER-NAME avec votre ID Docker.
+
+    docker tag my-second-image YOUR-USER-NAME/my-second-image
+
+4 - Maintenant, essayez à nouveau votre commande push. Si vous copiez la valeur de Docker Hub, vous pouvez supprimer la tagnamepartie, car nous n'avons pas ajouté de balise au nom de l'image. Si vous ne spécifiez pas de balise, Docker utilisera une balise appelée latest.
+
+    docker push YOUR-USER-NAME/my-second-image
+
+##### Exécutez l'image sur une nouvelle instance
+
+
+
+1 - Ouvrez votre navigateur pour jouer avec Docker
+
+[https://labs.play-with-docker.com/]
+
+2 - Cliquez sur Connexion , puis sélectionnez docker dans la liste déroulante.
+
+3 - Connectez-vous avec votre compte Docker Hub.
+
+4 - Une fois connecté, cliquez sur l' option AJOUTER UNE NOUVELLE INSTANCE dans la barre de gauche.
+
+5 - Dans le terminal, démarrez votre application fraîchement poussée.
+
+    docker run -dp 3000:3000 YOUR-USER-NAME/my-seconde-image
+
+Vous devriez voir l'image se dérouler et finalement démarrer !
+
+6 - Cliquez sur le badge 3000 lorsqu'il apparaît et vous devriez voir l'application avec vos modifications ! Hourra ! Si le badge 3000 n'apparaît pas, vous pouvez cliquer sur le bouton "Ouvrir le port" et saisir 3000.
