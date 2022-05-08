@@ -20,10 +20,10 @@ docker/getting-started : l'image à utiliser
 
 #### Partie 2 : Exemple d'application
 
-##### Créez l'image du conteneur de l'application
+##### Créer l'image du conteneur de l'application
 
 Télécharger l'application :
-https://github.com/docker/getting-started/tree/master/app
+[https://github.com/docker/getting-started/tree/master/app]
 
 0 - cd ./docker-docs-guides/getting-started-example/app
 
@@ -49,5 +49,50 @@ https://github.com/docker/getting-started/tree/master/app
     docker run -dp 3000:3000 my-first-image
 
 2 - Après quelques secondes, ouvrez votre navigateur Web sur [http://localhost:3000]. Vous devriez voir notre application.
+
+#### Partie 3 : Mettre à jour l'application
+
+##### Mettre à jour le code source
+
+1 - Dans le src/static/js/app.jsfichier, mettez à jour la ligne 56 pour utiliser le nouveau texte vide.
+
+    - <p className="text-center">No items yet! Add one above!</p>
+    + <p className="text-center">You have no todo items yet! Add one above!</p>
+
+2 - Construisons notre version mise à jour de l'image, en utilisant la même commande que nous avons utilisée auparavant.
+
+    docker build -t my-second-image .
+
+3 - Commençons un nouveau conteneur en utilisant le code mis à jour.
+
+    docker run -dp 3000:3000 my-second-image
+
+==> ERROR
+
+##### Remplacer l'ancien contenant
+
+1 - Obtenez l'ID du conteneur à l'aide de la docker pscommande.
+
+    docker ps
+
+2 - Utilisez la docker stop commande pour arrêter le conteneur.
+
+    docker stop <the-container-id>
+
+3 - Une fois le conteneur arrêté, vous pouvez le supprimer à l'aide de la docker rmcommande.
+
+    docker rm <the-container-id>
+
+Arrêter et supprimer un conteneur en une seule commande :
+
+    docker rm -f <the-container-id>
+
+##### Démarrez le conteneur d'applications mis à jour
+
+1 - Maintenant, démarrez votre application mise à jour.
+
+    docker run -dp 3000:3000 getting-started
+
+2 - Actualisez votre navigateur sur [http://localhost:3000] et vous devriez voir votre texte d'aide mis à jour !
 
 
