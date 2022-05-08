@@ -128,8 +128,6 @@ Utilisez la docker tag commande pour donner my-second-image d'un nouveau nom à 
 
 ##### Exécutez l'image sur une nouvelle instance
 
-
-
 1 - Ouvrez votre navigateur pour jouer avec Docker
 
 [https://labs.play-with-docker.com/]
@@ -147,3 +145,65 @@ Utilisez la docker tag commande pour donner my-second-image d'un nouveau nom à 
 Vous devriez voir l'image se dérouler et finalement démarrer !
 
 6 - Cliquez sur le badge 3000 lorsqu'il apparaît et vous devriez voir l'application avec vos modifications ! Hourra ! Si le badge 3000 n'apparaît pas, vous pouvez cliquer sur le bouton "Ouvrir le port" et saisir 3000.
+
+#### Partie 5 : Rendre la base de données persistante
+
+##### Le système de fichiers du conteneur
+
+1 - Démarrez un ubuntuconteneur qui créera un fichier nommé /data.txt avec un nombre aléatoire compris entre 1 et 10000.
+
+    docker run -d ubuntu bash -c "shuf -i 1-10000 -n 1 -o /data.txt && tail -f /dev/null"
+
+2 - Validez que nous pouvons voir la sortie execen entrant dans le conteneur. Vous pouvez utiliser la docker execcommande pour faire de même. Vous devez obtenir l'ID du conteneur (utilisez docker ps pour l'obtenir) et obtenir le contenu avec la commande suivante.
+
+    docker exec <container-id> cat /data.txt
+
+3 - Maintenant, commençons un autre ubuntuconteneur (la même image) et nous verrons que nous n'avons pas le même fichier.
+
+    docker run -it ubuntu ls /
+
+Et regarde! Il n'y a pas de fichier data.txt ici ! C'est parce qu'il n'a été écrit dans l'espace de travail que pour le premier conteneur.
+
+    docker exec <container-id> ls
+
+Allez-y et supprimez le premier conteneur à l'aide de la commande docker:
+
+    rm -f <container-id>
+
+##### Rendre persistantes les données todo
+
+En créant un volume et en l'attachant (souvent appelé "montage") au répertoire dans lequel les données sont stockées, nous pouvons conserver les données. Au fur et à mesure que notre conteneur écrit dans le todo.dbfichier, il sera conservé sur l'hôte dans le volume.
+
+Comme mentionné, nous allons utiliser un volume nommé . Considérez un volume nommé comme un simple ensemble de données. Docker conserve l'emplacement physique sur le disque et vous n'avez qu'à vous souvenir du nom du volume. Chaque fois que vous utilisez le volume, Docker s'assurera que les données correctes sont fournies.
+
+1 - Créez un volume à l'aide de la docker volume create commande.
+
+    docker volume create todo-db
+
+2 - Arrêtez et supprimez à nouveau le conteneur de l'application todo dans le tableau de bord (ou avec docker rm -f <id>), car il est toujours en cours d'exécution sans utiliser le volume persistant.
+
+    docker rm -f <container-id>
+
+    (docker exec <container-id> ls /etc/todos)
+
+3 - Démarrez le conteneur de l'application todo, mais ajoutez l' -vindicateur pour spécifier un montage de volume. Nous utiliserons le volume nommé et le monterons sur /etc/todos, ce qui capturera tous les fichiers créés sur le chemin.
+
+    docker run -dp 3000:3000 -v todo-db:/etc/todos my-second-image
+
+4 - Une fois le conteneur démarré, ouvrez l'application et ajoutez quelques éléments à votre liste de tâches.
+
+Éléments ajoutés à la liste de tâches
+
+5 - Arrêtez et supprimez le conteneur de l'application todo. Utilisez le tableau de bord ou docker pspour obtenir l'ID, puis docker rm -f <id> pour le supprimer.
+
+6 - Démarrez un nouveau conteneur en utilisant la même commande ci-dessus.
+
+7 - Ouvrez l'application. Vous devriez voir vos articles toujours dans votre liste !
+
+8 - Allez-y et retirez le conteneur lorsque vous avez terminé de vérifier votre liste.
+
+##### Plongez dans le volume
+
+De nombreuses personnes demandent fréquemment "Où Docker stocke-t-il réellement mes données lorsque j'utilise un volume nommé?" Si vous voulez savoir, vous pouvez utiliser la docker volume inspect commande.
+
+    docker volume inspect todo-db
