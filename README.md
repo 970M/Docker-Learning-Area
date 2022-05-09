@@ -180,7 +180,7 @@ Comme mentionné, nous allons utiliser un volume nommé . Considérez un volume 
 
     docker volume create todo-db
 
-2 - Arrêtez et supprimez à nouveau le conteneur de l'application todo dans le tableau de bord (ou avec docker rm -f <id>), car il est toujours en cours d'exécution sans utiliser le volume persistant.
+2 - Arrêtez et supprimez à nouveau le conteneur de l'application todo dans le tableau de bord (ou avec docker rm -f \<id\>), car il est toujours en cours d'exécution sans utiliser le volume persistant.
 
     docker rm -f <container-id>
 
@@ -194,7 +194,7 @@ Comme mentionné, nous allons utiliser un volume nommé . Considérez un volume 
 
 Éléments ajoutés à la liste de tâches
 
-5 - Arrêtez et supprimez le conteneur de l'application todo. Utilisez le tableau de bord ou docker pspour obtenir l'ID, puis docker rm -f <id> pour le supprimer.
+5 - Arrêtez et supprimez le conteneur de l'application todo. Utilisez le tableau de bord ou docker pspour obtenir l'ID, puis docker rm -f \<id\> pour le supprimer.
 
 6 - Démarrez un nouveau conteneur en utilisant la même commande ci-dessus.
 
@@ -207,3 +207,52 @@ Comme mentionné, nous allons utiliser un volume nommé . Considérez un volume 
 De nombreuses personnes demandent fréquemment "Où Docker stocke-t-il réellement mes données lorsque j'utilise un volume nommé?" Si vous voulez savoir, vous pouvez utiliser la docker volume inspect commande.
 
     docker volume inspect todo-db
+
+#### Partie 6 : Utiliser des supports de liaisons
+
+##### Comparaisons rapides de type de volume
+
+||Volumes nommés|Lier les montures|
+|---|--------------|-----------------|
+|Emplacement de l'hôte|Docker choisit|Vous contrôlez|
+|Exemple de montage (avec -v)|mon-volume:/usr/local/data|/chemin/vers/data:/usr/local/data
+|Remplit le nouveau volume avec le contenu du conteneur|Oui|Non|
+|Prend en charge les pilotes de volume|Oui|Non|
+
+##### Démarrer un conteneur en mode dev
+
+Pour exécuter notre conteneur afin de prendre en charge un workflow de développement, nous procéderons comme suit :
+
+Montez notre code source dans le conteneur
+Installer toutes les dépendances, y compris les dépendances "dev"
+Démarrez nodemon pour surveiller les modifications du système de fichiers
+
+1 - Assurez-vous qu'aucun my-second-image conteneur précédent n'est en cours d'exécution.
+
+2 - Exécutez la commande suivante à partir du répertoire de l'application. Nous vous expliquerons ensuite ce qui se passe :
+
+    docker run -dp 3000:3000 \
+     -w /app -v "$(pwd):/app" \
+     node:12-alpine \
+     sh -c "yarn install && yarn run dev"
+
+-dp 3000:3000 : pareil qu'avant. Exécuter en mode détaché (arrière-plan) et créer un mappage de port
+-w /app : définit le "répertoire de travail" ou le répertoire actuel à partir duquel la commande sera exécutée
+-v "$(pwd):/app" : lier monter le répertoire courant de l'hôte dans le conteneur dans le /apprépertoire
+node:12-alpine : l'image à utiliser. Notez qu'il s'agit de l'image de base de notre application à partir du Dockerfile
+sh -c "yarn install && yarn run dev" : la commande. Nous démarrons un shell en utilisant sh(alpine n'a pas bash) et en cours d'exécution yarn installpour installer toutes les dépendances, puis en exécutant yarn run dev. Si nous regardons dans le package.json, nous verrons que le devscript démarre nodemon.
+
+3 - Vous pouvez regarder les journaux en utilisant docker logs. Vous saurez que vous êtes prêt à partir lorsque vous verrez ceci :
+
+    docker logs -f <container-id>
+
+4 - Maintenant, modifions l'application. Dans le src/static/js/app.jsfichier, changeons le bouton "Ajouter un élément" pour dire simplement "Ajouter". Ce changement sera sur la ligne 109 :
+
+    - {submitting ? 'Adding...' : 'Add Item'}
+    + {submitting ? 'Adding...' : 'Add'}
+
+5 - Actualisez simplement la page (ou ouvrez-la) et vous devriez voir le changement reflété dans le navigateur presque immédiatement. Le redémarrage du serveur Node peut prendre quelques secondes, donc si vous obtenez une erreur, essayez simplement d'actualiser après quelques secondes.
+
+6 - N'hésitez pas à apporter d'autres modifications que vous souhaitez apporter. Lorsque vous avez terminé, arrêtez le conteneur et créez votre nouvelle image en utilisant :
+
+    docker build -t my-seconde-image .
