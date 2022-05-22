@@ -27,7 +27,7 @@ Télécharger l'application :
 
 0 - cd ./docker-docs-guides/getting-started-example/app
 
-1 - Créez un fichier nommé Dockerfile dans le même dossier que le fichier package.jsonavec le contenu suivant.
+1 - Créez un fichier nommé Dockerfile dans le même dossier que le fichier package.json avec le contenu suivant.
 
     # syntax=docker/dockerfile:1
     FROM node:12-alpine
@@ -146,19 +146,23 @@ Vous devriez voir l'image se dérouler et finalement démarrer !
 
 6 - Cliquez sur le badge 3000 lorsqu'il apparaît et vous devriez voir l'application avec vos modifications ! Hourra ! Si le badge 3000 n'apparaît pas, vous pouvez cliquer sur le bouton "Ouvrir le port" et saisir 3000.
 
+7 - Vous pouvez aussi avoir besoin de récupérer des images sur le Docker Hub sans pour autant lancer de conteneur. Pour cela, vous avez besoin de lancer la commande suivante :
+
+    docker pull YOUR-USER-NAME/my-seconde-image
+
 #### Partie 5 : Rendre la base de données persistante
 
 ##### Le système de fichiers du conteneur
 
-1 - Démarrez un ubuntuconteneur qui créera un fichier nommé /data.txt avec un nombre aléatoire compris entre 1 et 10000.
+1 - Démarrez un ubuntu conteneur qui créera un fichier nommé /data.txt avec un nombre aléatoire compris entre 1 et 10000.
 
     docker run -d ubuntu bash -c "shuf -i 1-10000 -n 1 -o /data.txt && tail -f /dev/null"
 
-2 - Validez que nous pouvons voir la sortie execen entrant dans le conteneur. Vous pouvez utiliser la docker execcommande pour faire de même. Vous devez obtenir l'ID du conteneur (utilisez docker ps pour l'obtenir) et obtenir le contenu avec la commande suivante.
+2 - Validez que nous pouvons voir la sortie exec en entrant dans le conteneur. Vous pouvez utiliser la docker exec commande pour faire de même. Vous devez obtenir l'ID du conteneur (utilisez docker ps pour l'obtenir) et obtenir le contenu avec la commande suivante.
 
     docker exec <container-id> cat /data.txt
 
-3 - Maintenant, commençons un autre ubuntuconteneur (la même image) et nous verrons que nous n'avons pas le même fichier.
+3 - Maintenant, commençons un autre ubuntu conteneur (la même image) et nous verrons que nous n'avons pas le même fichier.
 
     docker run -it ubuntu ls /
 
@@ -256,3 +260,46 @@ sh -c "yarn install && yarn run dev" : la commande. Nous démarrons un shell en 
 6 - N'hésitez pas à apporter d'autres modifications que vous souhaitez apporter. Lorsque vous avez terminé, arrêtez le conteneur et créez votre nouvelle image en utilisant :
 
     docker build -t my-seconde-image .
+
+#### Partie 7
+
+#### Partie 8
+
+#### Partie 9
+
+#### Partie 10
+
+Consolider avant de progresser
+
+----
+
+#### Pour créer une image Docker, vous savez utiliser les instructions suivantes
+
+**FROM** qui vous permet de définir l'image source ;
+**RUN** qui vous permet d’exécuter des commandes dans votre conteneur ;
+**ADD** qui vous permet d'ajouter des fichiers dans votre conteneur ;
+**WORKDIR** qui vous permet de définir votre répertoire de travail ;
+**EXPOSE** qui permet de définir les ports d'écoute par défaut ;
+**VOLUME** qui permet de définir les volumes utilisables ;
+**CMD** qui permet de définir la commande par défaut lors de l’exécution de vos conteneurs Docker.
+
+
+#### Docker Composer
+
+**docker-compose up -d** vous permettra de démarrer l'ensemble des conteneurs en arrière-plan ;
+**docker-compose ps** vous permettra de voir le statut de l'ensemble de votre stack ;
+**docker-compose logs -f --tail 5** vous permettra d'afficher les logs de votre stack ;
+**docker-compose stop** vous permettra d'arrêter l'ensemble des services d'une stack ;
+**docker-compose down** vous permettra de détruire l'ensemble des ressources d'une stack ;
+**docker-compose config** vous permettra de valider la syntaxe de votre fichier docker-compose.yml  .
+
+##### docker-compose.yml
+
+**image** qui permet de spécifier l'image source pour le conteneur ;
+**build** qui permet de spécifier le Dockerfile source pour créer l'image du conteneur ;
+**volume** qui permet de spécifier les points de montage entre le système hôte et les conteneurs ;
+**restart** qui permet de définir le comportement du conteneur en cas d'arrêt du processus ;
+**environment** qui permet de définir les variables d’environnement ;
+**depends_on** qui permet de dire que le conteneur dépend d'un autre conteneur ;
+**ports qui** permet de définir les ports disponibles entre la machine host et le conteneur.
+
